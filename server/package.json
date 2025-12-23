@@ -1,9 +1,13 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "\"backend work will be done here only hehe\"",
+  "repository": {
+    "type": "git",
+    "url": "\"cobios\""
+  },
   "license": "ISC",
-  "author": "",
+  "author": "\"SARTHAK, SAURAV, YATEEN\"",
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
