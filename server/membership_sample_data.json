@@ -1,0 +1,114 @@
+[
+  {
+    "name": "Basic",
+    "duration": 1,
+    "durationType": "months",
+    "cost": 999,
+    "benefits": [
+      "Access to gym equipment",
+      "Locker facility",
+      "Basic fitness assessment"
+    ],
+    "status": "active",
+    "color": "#6B7280"
+  },
+  {
+    "name": "Standard",
+    "duration": 3,
+    "durationType": "months",
+    "cost": 2499,
+    "benefits": [
+      "Access to gym equipment",
+      "Locker facility",
+      "Fitness assessment",
+      "1 Personal training session/month",
+      "Access to group classes"
+    ],
+    "status": "active",
+    "color": "#3B82F6"
+  },
+  {
+    "name": "Premium",
+    "duration": 6,
+    "durationType": "months",
+    "cost": 4499,
+    "benefits": [
+      "Access to gym equipment",
+      "Locker facility",
+      "Monthly fitness assessment",
+      "2 Personal training sessions/month",
+      "Access to all group classes",
+      "Diet consultation",
+      "Sauna & Steam access"
+    ],
+    "status": "active",
+    "color": "#8B5CF6"
+  },
+  {
+    "name": "Elite",
+    "duration": 12,
+    "durationType": "months",
+    "cost": 7999,
+    "benefits": [
+      "24/7 Gym access",
+      "Premium locker facility",
+      "Weekly fitness assessment",
+      "4 Personal training sessions/month",
+      "Access to all group classes",
+      "Personalized diet plan",
+      "AI-generated workout plans",
+      "Sauna & Steam access",
+      "Guest passes (2/month)",
+      "Priority booking"
+    ],
+    "status": "active",
+    "color": "#F59E0B"
+  },
+  {
+    "name": "Student",
+    "duration": 1,
+    "durationType": "months",
+    "cost": 699,
+    "benefits": [
+      "Access to gym equipment",
+      "Locker facility",
+      "Valid student ID required"
+    ],
+    "status": "active",
+    "color": "#10B981"
+  },
+  {
+    "name": "Weekly Pass",
+    "duration": 7,
+    "durationType": "days",
+    "cost": 299,
+    "benefits": [
+      "Access to gym equipment",
+      "Locker facility"
+    ],
+    "status": "active",
+    "color": "#EF4444"
+  },
+  {
+    "name": "Annual",
+    "duration": 1,
+    "durationType": "years",
+    "cost": 9999,
+    "benefits": [
+      "24/7 Gym access",
+      "Premium locker facility",
+      "Monthly fitness assessment",
+      "Unlimited personal training sessions",
+      "Access to all group classes",
+      "Personalized diet plan",
+      "AI-generated workout plans",
+      "Sauna & Steam access",
+      "Guest passes (4/month)",
+      "Priority booking",
+      "Free nutrition consultation"
+    ],
+    "status": "active",
+    "color": "#EC4899"
+  }
+]
+

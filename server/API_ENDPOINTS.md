@@ -38,20 +38,6 @@ Authorization: Bearer <accessToken>
 }
 ```
 
-### POST `/auth/register`
-**Description:** User registration  
-**Access:** Public  
-**Request Body:**
-```json
-{
-  "email": "user@example.com",
-  "password": "password123",
-  "name": "John Doe",
-  "role": "member",
-  "phone": "1234567890"
-}
-```
-
 ### POST `/auth/refresh`
 **Description:** Refresh access token  
 **Access:** Public  
@@ -651,7 +637,7 @@ Authorization: Bearer <accessToken>
 
 ### POST `/ai/generate-workout-plan`
 **Description:** Generate AI workout plan  
-**Access:** Admin, Trainer  
+**Access:** Admin, Trainer, Member  
 **Request Body:**
 ```json
 {
@@ -669,7 +655,7 @@ Authorization: Bearer <accessToken>
 
 ### POST `/ai/generate-diet-plan`
 **Description:** Generate AI diet plan  
-**Access:** Admin, Trainer  
+**Access:** Admin, Trainer, Member  
 **Request Body:**
 ```json
 {
