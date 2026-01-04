@@ -231,7 +231,7 @@ Authorization: Bearer <accessToken>
 **Description:** Delete trainer  
 **Access:** Admin
 
-### GET `/trainers/:id/members`
+### GET ` `
 **Description:** Get trainer's assigned members  
 **Access:** Admin, Self
 
