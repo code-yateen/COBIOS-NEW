@@ -28,11 +28,10 @@ const mealSchema = new mongoose.Schema(
       type: String,
       enum: [
         "Breakfast",
-        "Mid-Morning Snack",
         "Lunch",
-        "Afternoon Snack",
         "Dinner",
-        "Post-Workout",
+        "Pre-workout",
+        "Post-workout",
       ],
       required: true,
     },

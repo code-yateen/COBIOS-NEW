@@ -24,23 +24,25 @@ class AIService {
       messages: [
         {
           role: "system",
-          content: `
-  You are a JSON API.
-  
-  Rules:
-  - Output ONLY raw JSON
-  - No markdown
-  - No comments
-  - No explanations
-  - No trailing commas
-          `.trim(),
+          content: 
+            "You are a strict JSON API. You MUST follow these rules EXACTLY:\n\n" +
+            "CRITICAL RULES:\n" +
+            "- Output ONLY raw JSON, nothing else\n" +
+            "- No markdown formatting (no code blocks)\n" +
+            "- No comments or explanations\n" +
+            "- No trailing commas\n" +
+            "- No text before or after the JSON\n" +
+            "- The JSON must be valid and parseable\n" +
+            "- Follow the exact structure specified in the prompt\n" +
+            "- Do not add any fields not specified\n" +
+            "- Do not skip any required fields",
         },
         {
           role: "user",
           content: userPrompt,
         },
       ],
-      temperature: 0.3,
+      temperature: 0.1,
     });
   
     const rawText = completion.choices[0].message.content;
@@ -125,6 +127,7 @@ Return JSON in this exact format:
       fitnessLevel,
       goal,
       dietaryRestrictions,
+      dietaryPreference,
       medicalConditions,
     } = userDetails;
 
@@ -135,48 +138,115 @@ Return JSON in this exact format:
       goal
     );
 
+    // Normalize dietary preference to veg or non-veg
+    const dietType = dietaryPreference 
+      ? (dietaryPreference.toLowerCase().includes("veg") && !dietaryPreference.toLowerCase().includes("non") ? "Vegetarian" : "Non-Vegetarian")
+      : (dietaryRestrictions && dietaryRestrictions.toLowerCase().includes("veg") && !dietaryRestrictions.toLowerCase().includes("non") ? "Vegetarian" : "Non-Vegetarian");
+
     const prompt = `
-Create a detailed diet plan:
+Create a detailed diet plan based on the following requirements:
 
 Age: ${age}
 Height: ${height} cm
 Weight: ${weight} kg
 Fitness Level: ${fitnessLevel}
 Goal: ${goal}
-Dietary Restrictions: ${dietaryRestrictions || "None"}
+Dietary Preference: ${dietType}
 Medical Conditions: ${medicalConditions || "None"}
-Target Calories: ${targetCalories} kcal
+Target Daily Calories: ${targetCalories} kcal
 
-Return JSON in this exact format:
+IMPORTANT REQUIREMENTS:
+1. You MUST create meals ONLY for these meal types: Breakfast, Lunch, Dinner, Pre-workout, Post-workout
+2. Each meal MUST include specific food items with exact quantities
+3. All food items MUST be ${dietType.toLowerCase()} appropriate
+4. Total calories across all meals MUST equal approximately ${targetCalories} kcal
+5. Each food item MUST have: food name, quantity, calories, and protein content
+6. Each meal MUST have a totalCalories field that sums all items in that meal
+
+Return JSON in this EXACT format (no other fields, no variations):
 {
   "planName": "string",
   "goal": "string",
-  "dailyCalories": number,
+  "dailyCalories": ${targetCalories},
   "macros": {
-    "protein": "string",
-    "carbs": "string",
-    "fats": "string"
+    "protein": "string percentage",
+    "carbs": "string percentage",
+    "fats": "string percentage"
   },
   "meals": [
     {
       "meal": "Breakfast",
-      "time": "string",
+      "time": "string time format",
       "items": [
         {
-          "food": "string",
-          "quantity": "string",
+          "food": "specific food name",
+          "quantity": "exact quantity with unit",
           "calories": number,
-          "protein": "string"
+          "protein": "string with unit"
+        }
+      ],
+      "totalCalories": number
+    },
+    {
+      "meal": "Lunch",
+      "time": "string time format",
+      "items": [
+        {
+          "food": "specific food name",
+          "quantity": "exact quantity with unit",
+          "calories": number,
+          "protein": "string with unit"
+        }
+      ],
+      "totalCalories": number
+    },
+    {
+      "meal": "Dinner",
+      "time": "string time format",
+      "items": [
+        {
+          "food": "specific food name",
+          "quantity": "exact quantity with unit",
+          "calories": number,
+          "protein": "string with unit"
+        }
+      ],
+      "totalCalories": number
+    },
+    {
+      "meal": "Pre-workout",
+      "time": "string time format",
+      "items": [
+        {
+          "food": "specific food name",
+          "quantity": "exact quantity with unit",
+          "calories": number,
+          "protein": "string with unit"
+        }
+      ],
+      "totalCalories": number
+    },
+    {
+      "meal": "Post-workout",
+      "time": "string time format",
+      "items": [
+        {
+          "food": "specific food name",
+          "quantity": "exact quantity with unit",
+          "calories": number,
+          "protein": "string with unit"
         }
       ],
       "totalCalories": number
     }
   ]
 }
+
+CRITICAL: Return ONLY valid JSON. No markdown, no explanations, no comments. The meal field values MUST be exactly: "Breakfast", "Lunch", "Dinner", "Pre-workout", or "Post-workout".
 `;
 
     return this.callDeepSeek(
-      "You are an expert nutritionist and dietitian.",
+      "You are an expert nutritionist and dietitian. You create precise, kcal-based diet plans with specific food items based on dietary preferences (vegetarian or non-vegetarian only).",
       prompt
     );
   }

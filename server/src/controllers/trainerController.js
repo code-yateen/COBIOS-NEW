@@ -3,13 +3,26 @@ const ApiError = require("../utils/ApiError");
 const asyncHandler = require("../utils/asyncHandler");
 
 exports.getAllTrainers = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+
   const trainers = await User.find({ role: "trainer", isActive: true })
     .select("-password")
-    .populate("assignedMembers", "name email");
+    .populate("assignedMembers", "name email")
+    .limit(limit * 1)
+    .skip((page - 1) * limit)
+    .sort({ createdAt: -1 });
+
+  const total = await User.countDocuments({ role: "trainer", isActive: true });
 
   res.status(200).json({
     success: true,
     data: trainers,
+    pagination: {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      pages: Math.ceil(total / limit),
+    },
   });
 });
 

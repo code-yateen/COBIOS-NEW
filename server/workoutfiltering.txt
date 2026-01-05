@@ -1,0 +1,426 @@
+ async generateWorkoutPlan(userDetails) {
+    const {
+      age,
+      height,
+      weight,
+      fitnessLevel,
+      goal,
+      medicalConditions,
+      workoutDaysPerWeek,
+      preferredWorkoutTime,
+    } = userDetails;
+
+    const prompt = `
+Create a detailed workout plan for a gym member:
+
+Age: ${age}
+Height: ${height} cm
+Weight: ${weight} kg
+Fitness Level: ${fitnessLevel}
+Goal: ${goal}
+Medical Conditions: ${medicalConditions || "None"}
+Workout Days Per Week: ${workoutDaysPerWeek}
+Preferred Workout Time: ${preferredWorkoutTime}
+
+Return JSON in this exact format:
+{
+  "planName": "string",
+  "goal": "string",
+  "duration": "string",
+  "schedule": [
+    {
+      "day": "Monday",
+      "focus": "string",
+      "exercises": [
+        {
+          "name": "string",
+          "sets": number,
+          "reps": "string",
+          "rest": "string"
+        }
+      ]
+    }
+  ]
+}
+`;
+
+    return this.callDeepSeek(
+      "You are an expert fitness trainer and exercise physiologist.",
+      prompt
+    );
+  }
+
+
+
+  exports.generateWorkoutPlan = asyncHandler(async (req, res) => {
+  const {
+    memberId,
+    age,
+    height,
+    weight,
+    fitnessLevel,
+    goal,
+    medicalConditions,
+    workoutDaysPerWeek,
+    preferredWorkoutTime,
+  } = req.body;
+
+  const userRole = req.user.role;
+  const userId = req.user.userId;
+
+  // Determine the actual memberId and trainerId based on user role
+  let actualMemberId = memberId;
+  let actualTrainerId = userId;
+
+  // If user is a member, they can only generate plans for themselves
+  if (userRole === "member") {
+    // Members can only generate plans for themselves
+    if (memberId && memberId !== userId) {
+      throw new ApiError(403, "Members can only generate plans for themselves");
+    }
+    actualMemberId = userId; // Members generate plans for themselves
+    actualTrainerId = userId; // Self-generated, so trainerId is their own ID
+  } else if (userRole === "admin" || userRole === "trainer") {
+    // Admin/Trainer can generate for any member
+    if (!memberId) {
+      throw new ApiError(400, "memberId is required for admin/trainer");
+    }
+    actualTrainerId = userId;
+  }
+
+  // Generate AI workout plan
+  const aiPlan = await aiService.generateWorkoutPlan({
+    age,
+    height,
+    weight,
+    fitnessLevel,
+    goal,
+    medicalConditions,
+    workoutDaysPerWeek,
+    preferredWorkoutTime,
+  });
+
+  // Save workout plan to database
+  const workoutPlan = await WorkoutPlan.create({
+    memberId: actualMemberId,
+    trainerId: actualTrainerId,
+    planName: aiPlan.planName,
+    goal: aiPlan.goal,
+    duration: aiPlan.duration,
+    schedule: aiPlan.schedule,
+    aiGenerated: true,
+  });
+
+  // Create notification for member (only if not self-generated)
+  if (actualMemberId !== userId) {
+    await Notification.create({
+      userId: actualMemberId,
+      type: "plan",
+      title: "New Workout Plan Available",
+      message: `Your AI-generated workout plan "${aiPlan.planName}" is ready!`,
+      priority: "medium",
+    });
+  }
+
+  const populated = await WorkoutPlan.findById(workoutPlan._id)
+    .populate("memberId", "name email")
+    .populate("trainerId", "name email");
+
+  res.status(201).json({
+    success: true,
+    message: "Workout plan generated successfully",
+    data: populated,
+  });
+});
+
+// response
+
+
+_id
+69445701974ffb8e992e903b
+memberId
+694452a44304358287ffa3e4
+trainerId
+6942e105d71357c63f662ec0
+planName
+"Intermediate Hypertrophy Builder"
+goal
+"Build Muscle"
+duration
+"8 weeks"
+aiGenerated
+true
+
+schedule
+Array (4)
+
+0
+Object
+day
+"Monday"
+focus
+"Chest & Triceps"
+
+exercises
+Array (5)
+
+0
+Object
+name
+"Barbell Bench Press"
+sets
+4
+reps
+"8-10"
+rest
+"90s"
+
+1
+Object
+name
+"Incline Dumbbell Press"
+sets
+3
+reps
+"10-12"
+rest
+"75s"
+
+2
+Object
+name
+"Chest Flyes"
+sets
+3
+reps
+"12-15"
+rest
+"60s"
+
+3
+Object
+name
+"Triceps Dips"
+sets
+3
+reps
+"10-12"
+rest
+"60s"
+
+4
+Object
+name
+"Cable Triceps Pushdown"
+sets
+3
+reps
+"12-15"
+rest
+"60s"
+
+1
+Object
+day
+"Tuesday"
+focus
+"Back & Biceps"
+
+exercises
+Array (5)
+
+0
+Object
+name
+"Pull-ups"
+sets
+4
+reps
+"6-10"
+rest
+"90s"
+
+1
+Object
+name
+"Bent-Over Rows"
+sets
+4
+reps
+"8-10"
+rest
+"90s"
+
+2
+Object
+name
+"Lat Pulldown"
+sets
+3
+reps
+"10-12"
+rest
+"75s"
+
+3
+Object
+name
+"Barbell Curls"
+sets
+3
+reps
+"10-12"
+rest
+"60s"
+
+4
+Object
+name
+"Hammer Curls"
+sets
+3
+reps
+"12-15"
+rest
+"60s"
+
+2
+Object
+day
+"Thursday"
+focus
+"Legs & Core"
+
+exercises
+Array (5)
+
+0
+Object
+name
+"Barbell Squats"
+sets
+4
+reps
+"8-10"
+rest
+"90s"
+
+1
+Object
+name
+"Romanian Deadlifts"
+sets
+4
+reps
+"10-12"
+rest
+"90s"
+
+2
+Object
+name
+"Leg Press"
+sets
+3
+reps
+"10-12"
+rest
+"75s"
+
+3
+Object
+name
+"Leg Curls"
+sets
+3
+reps
+"12-15"
+rest
+"60s"
+
+4
+Object
+name
+"Plank"
+sets
+3
+reps
+"30-45s"
+rest
+"45s"
+
+3
+Object
+day
+"Friday"
+focus
+"Shoulders & Full Body"
+
+exercises
+Array (5)
+
+0
+Object
+name
+"Overhead Press"
+sets
+4
+reps
+"8-10"
+rest
+"90s"
+
+1
+Object
+name
+"Lateral Raises"
+sets
+4
+reps
+"12-15"
+rest
+"60s"
+
+2
+Object
+name
+"Front Raises"
+sets
+3
+reps
+"12-15"
+rest
+"60s"
+
+3
+Object
+name
+"Face Pulls"
+sets
+3
+reps
+"15-20"
+rest
+"60s"
+
+4
+Object
+name
+"Farmers Walk"
+sets
+3
+reps
+"40m"
+rest
+"90s"
+isActive
+true
+createdAt
+2025-12-18T19:33:21.162+00:00
+updatedAt
+2025-12-18T19:33:21.162+00:00
+__v
+0
+
+
+

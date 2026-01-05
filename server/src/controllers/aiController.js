@@ -97,6 +97,7 @@ exports.generateDietPlan = asyncHandler(async (req, res) => {
     fitnessLevel,
     goal,
     dietaryRestrictions,
+    dietaryPreference,
     medicalConditions,
   } = req.body;
 
@@ -131,6 +132,7 @@ exports.generateDietPlan = asyncHandler(async (req, res) => {
     fitnessLevel,
     goal,
     dietaryRestrictions,
+    dietaryPreference,
     medicalConditions,
   });
 
@@ -152,28 +154,58 @@ exports.generateDietPlan = asyncHandler(async (req, res) => {
     validatedPlan.dailyCalories = 2000;
   }
 
+  // Allowed meal types
+  const allowedMealTypes = ["Breakfast", "Lunch", "Dinner", "Pre-workout", "Post-workout"];
+
   // Normalize and validate meals
   if (Array.isArray(aiPlan.meals) && aiPlan.meals.length > 0) {
     validatedPlan.meals = aiPlan.meals
       .map(normalizeMealData)
-      .filter(meal => meal.items && meal.items.length > 0); // Only include meals with items
-  } else {
-    // Fallback: create a basic meal structure if AI didn't return meals
-    validatedPlan.meals = [
-      {
-        meal: "Breakfast",
-        time: "8:00 AM",
-        items: [
-          {
-            food: "Oatmeal",
-            quantity: "1 cup",
-            calories: 300,
-            protein: "10g",
-          },
-        ],
-        totalCalories: 300,
-      },
-    ];
+      .filter(meal => {
+        // Only include meals with valid meal type and items
+        return allowedMealTypes.includes(meal.meal) && meal.items && meal.items.length > 0;
+      })
+      .map(meal => {
+        // Ensure meal type is exactly one of the allowed types
+        if (!allowedMealTypes.includes(meal.meal)) {
+          // Try to map similar names to allowed types
+          const mealLower = meal.meal.toLowerCase();
+          if (mealLower.includes("breakfast")) meal.meal = "Breakfast";
+          else if (mealLower.includes("lunch")) meal.meal = "Lunch";
+          else if (mealLower.includes("dinner")) meal.meal = "Dinner";
+          else if (mealLower.includes("pre") || mealLower.includes("pre-workout")) meal.meal = "Pre-workout";
+          else if (mealLower.includes("post") || mealLower.includes("post-workout")) meal.meal = "Post-workout";
+        }
+        return meal;
+      });
+  }
+
+  // Ensure we have all required meals
+  const existingMealTypes = validatedPlan.meals.map(m => m.meal);
+  const missingMeals = allowedMealTypes.filter(type => !existingMealTypes.includes(type));
+
+  // If meals are missing, create basic structure (this should rarely happen with strict AI)
+  if (validatedPlan.meals.length === 0 || missingMeals.length > 0) {
+    const defaultMeals = allowedMealTypes.map(mealType => ({
+      meal: mealType,
+      time: mealType === "Breakfast" ? "8:00 AM" : 
+            mealType === "Lunch" ? "1:00 PM" : 
+            mealType === "Dinner" ? "7:00 PM" :
+            mealType === "Pre-workout" ? "5:00 PM" : "7:30 PM",
+      items: [{
+        food: "Sample Food",
+        quantity: "1 serving",
+        calories: Math.round(validatedPlan.dailyCalories / 5),
+        protein: "10g",
+      }],
+      totalCalories: Math.round(validatedPlan.dailyCalories / 5),
+    }));
+
+    // Merge existing meals with missing ones
+    validatedPlan.meals = allowedMealTypes.map(mealType => {
+      const existing = validatedPlan.meals.find(m => m.meal === mealType);
+      return existing || defaultMeals.find(m => m.meal === mealType);
+    });
   }
 
   // Save diet plan to database with error handling

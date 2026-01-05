@@ -1,5 +1,8 @@
 # Cobios Gym Management System - Complete API Documentation
 
+// edit asign members "assigned trainer" ai (open router) ai get ai 
+// expiry and date
+
 ## Base URL
 ```
 http://localhost:5000/api
@@ -195,7 +198,10 @@ Authorization: Bearer <accessToken>
 
 ### GET `/trainers`
 **Description:** Get all trainers  
-**Access:** Admin
+**Access:** Admin  
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 10)
 
 ### GET `/trainers/:id`
 **Description:** Get trainer by ID  
@@ -446,7 +452,7 @@ Authorization: Bearer <accessToken>
   "meals": [
     {
       "meal": "Breakfast",
-      "time": "7:00 AM",
+      "time": "8:00 AM",
       "items": [
         {
           "food": "Oatmeal",
@@ -456,10 +462,67 @@ Authorization: Bearer <accessToken>
         }
       ],
       "totalCalories": 350
+    },
+    {
+      "meal": "Lunch",
+      "time": "1:00 PM",
+      "items": [
+        {
+          "food": "Grilled Chicken",
+          "quantity": "200g",
+          "calories": 400,
+          "protein": "50g"
+        }
+      ],
+      "totalCalories": 400
+    },
+    {
+      "meal": "Dinner",
+      "time": "7:00 PM",
+      "items": [
+        {
+          "food": "Salmon",
+          "quantity": "150g",
+          "calories": 300,
+          "protein": "35g"
+        }
+      ],
+      "totalCalories": 300
+    },
+    {
+      "meal": "Pre-workout",
+      "time": "5:00 PM",
+      "items": [
+        {
+          "food": "Banana",
+          "quantity": "1 medium",
+          "calories": 100,
+          "protein": "1g"
+        }
+      ],
+      "totalCalories": 100
+    },
+    {
+      "meal": "Post-workout",
+      "time": "7:30 PM",
+      "items": [
+        {
+          "food": "Protein Shake",
+          "quantity": "1 serving",
+          "calories": 120,
+          "protein": "25g"
+        }
+      ],
+      "totalCalories": 120
     }
   ]
 }
 ```
+**Notes:**
+- `meal` field must be one of: "Breakfast", "Lunch", "Dinner", "Pre-workout", "Post-workout"
+- Each meal must include specific food items with quantities, calories, and protein content
+- `totalCalories` should sum all items in that meal
+- `dailyCalories` should approximately equal the sum of all meal calories
 
 ### PUT `/diet-plans/:id`
 **Description:** Update diet plan  
@@ -654,7 +717,7 @@ Authorization: Bearer <accessToken>
 ```
 
 ### POST `/ai/generate-diet-plan`
-**Description:** Generate AI diet plan  
+**Description:** Generate AI diet plan (kcal-based with specific food items)  
 **Access:** Admin, Trainer, Member  
 **Request Body:**
 ```json
@@ -665,10 +728,18 @@ Authorization: Bearer <accessToken>
   "weight": 75,
   "fitnessLevel": "intermediate",
   "goal": "Weight Loss",
-  "dietaryRestrictions": "Vegetarian",
+  "dietaryPreference": "Vegetarian",
+  "dietaryRestrictions": "None",
   "medicalConditions": "None"
 }
 ```
+**Notes:**
+- `dietaryPreference` (optional): "Vegetarian" or "Non-Vegetarian" (veg/non-veg only)
+- If `dietaryPreference` is not provided, `dietaryRestrictions` will be used to determine preference
+- Diet plan is kcal-based and calculated according to user's BMR, fitness level, and goal
+- Generated plan includes exactly 5 meals: Breakfast, Lunch, Dinner, Pre-workout, Post-workout
+- Each meal contains specific food items with quantities, calories, and protein content
+- AI returns strict JSON format only
 
 ### POST `/ai/request-plan`
 **Description:** Member request AI plan  
@@ -744,5 +815,10 @@ Authorization: Bearer <accessToken>
 3. Pagination defaults: `page=1`, `limit=10`
 4. JWT tokens expire: Access token (15 min), Refresh token (7 days)
 5. Rate limiting is applied to all routes
-6. AI features require OpenAI API key configuration
+6. AI features require OpenRouter API key configuration
+7. **Diet Plans:**
+   - Meal types are restricted to: Breakfast, Lunch, Dinner, Pre-workout, Post-workout
+   - AI-generated diet plans are kcal-based and include specific food items with quantities
+   - Dietary preferences supported: Vegetarian or Non-Vegetarian only
+   - AI returns strict JSON format only (no markdown, no explanations)
 
