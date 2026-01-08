@@ -79,7 +79,27 @@ exports.createMember = asyncHandler(async (req, res) => {
     );
   }
 
+  // If trainerId is provided, verify trainer exists
+  if (memberData.trainerId) {
+    const trainer = await User.findById(memberData.trainerId);
+    if (!trainer || trainer.role !== "trainer") {
+      throw new ApiError(404, "Trainer not found");
+    }
+  }
+
   const member = await User.create(memberData);
+
+  // If trainerId was provided, add member to trainer's assignedMembers array
+  if (member.trainerId) {
+    const trainer = await User.findById(member.trainerId);
+    if (trainer && trainer.role === "trainer") {
+      // Add member to trainer's assigned members if not already there
+      if (!trainer.assignedMembers.includes(member._id)) {
+        trainer.assignedMembers.push(member._id);
+        await trainer.save();
+      }
+    }
+  }
 
   // Populate membership details for response
   const populatedMember = await User.findById(member._id)
@@ -108,6 +128,12 @@ exports.updateMember = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Access denied");
   }
 
+  // Get current member to check existing trainerId
+  const currentMember = await User.findById(id);
+  if (!currentMember || currentMember.role !== "member") {
+    throw new ApiError(404, "Member not found");
+  }
+
   const updateData = { ...req.body };
 
   // If membershipId is being updated, calculate new expiry date
@@ -126,6 +152,34 @@ exports.updateMember = asyncHandler(async (req, res) => {
     );
   }
 
+  // If trainerId is being updated, handle trainer assignment
+  if (updateData.trainerId !== undefined) {
+    const oldTrainerId = currentMember.trainerId ? currentMember.trainerId.toString() : null;
+    const newTrainerId = updateData.trainerId ? updateData.trainerId.toString() : null;
+    
+    // If trainerId is changing (either from one to another, or being removed/set)
+    if (oldTrainerId !== newTrainerId) {
+      // Remove from old trainer's assigned members if existed
+      if (oldTrainerId) {
+        const oldTrainer = await User.findById(oldTrainerId);
+        if (oldTrainer && oldTrainer.role === "trainer") {
+          oldTrainer.assignedMembers = oldTrainer.assignedMembers.filter(
+            (mId) => mId.toString() !== id.toString()
+          );
+          await oldTrainer.save();
+        }
+      }
+      
+      // Verify new trainer exists if setting one
+      if (newTrainerId) {
+        const newTrainer = await User.findById(newTrainerId);
+        if (!newTrainer || newTrainer.role !== "trainer") {
+          throw new ApiError(404, "Trainer not found");
+        }
+      }
+    }
+  }
+
   const member = await User.findByIdAndUpdate(
     id,
     updateData,
@@ -137,6 +191,18 @@ exports.updateMember = asyncHandler(async (req, res) => {
 
   if (!member || member.role !== "member") {
     throw new ApiError(404, "Member not found");
+  }
+
+  // If trainerId was updated and is set, add member to trainer's assignedMembers array
+  if (updateData.trainerId !== undefined && member.trainerId) {
+    const trainer = await User.findById(member.trainerId);
+    if (trainer && trainer.role === "trainer") {
+      // Add member to trainer's assigned members if not already there
+      if (!trainer.assignedMembers.some(mId => mId.toString() === member._id.toString())) {
+        trainer.assignedMembers.push(member._id);
+        await trainer.save();
+      }
+    }
   }
 
   res.status(200).json({
