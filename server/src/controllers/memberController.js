@@ -1,10 +1,12 @@
 const User = require("../models/User");
+const Membership = require("../models/Membership");
 const WorkoutPlan = require("../models/WorkoutPlan");
 const DietPlan = require("../models/DietPlan");
 const Progress = require("../models/Progress");
 const Attendance = require("../models/Attendance");
 const ApiError = require("../utils/ApiError");
 const asyncHandler = require("../utils/asyncHandler");
+const { calculateMembershipExpiry } = require("../utils/helpers");
 
 exports.getAllMembers = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
@@ -57,15 +59,42 @@ exports.getMemberById = asyncHandler(async (req, res) => {
 });
 
 exports.createMember = asyncHandler(async (req, res) => {
-  const member = await User.create({
+  const memberData = {
     ...req.body,
     role: "member",
-  });
+  };
+
+  // If membershipId is provided, calculate expiry date
+  if (memberData.membershipId) {
+    const membership = await Membership.findById(memberData.membershipId);
+    if (!membership) {
+      throw new ApiError(404, "Membership plan not found");
+    }
+
+    // Calculate expiry date based on membership duration
+    memberData.membershipExpiry = calculateMembershipExpiry(
+      membership.duration,
+      membership.durationType,
+      new Date()
+    );
+  }
+
+  const member = await User.create(memberData);
+
+  // Populate membership details for response
+  const populatedMember = await User.findById(member._id)
+    .select("-password")
+    .populate("membershipId", "name cost duration durationType")
+    .populate("trainerId", "name email");
 
   res.status(201).json({
     success: true,
     message: "Member created successfully",
-    data: member.toJSON(),
+    data: populatedMember,
+    membershipExpiry: member.membershipExpiry,
+    membershipExpiryFormatted: member.membershipExpiry 
+      ? member.membershipExpiry.toISOString() 
+      : null,
   });
 });
 
@@ -79,11 +108,32 @@ exports.updateMember = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Access denied");
   }
 
+  const updateData = { ...req.body };
+
+  // If membershipId is being updated, calculate new expiry date
+  if (updateData.membershipId) {
+    const membership = await Membership.findById(updateData.membershipId);
+    if (!membership) {
+      throw new ApiError(404, "Membership plan not found");
+    }
+
+    // Calculate expiry date based on membership duration
+    // Start from current date when updating membership
+    updateData.membershipExpiry = calculateMembershipExpiry(
+      membership.duration,
+      membership.durationType,
+      new Date()
+    );
+  }
+
   const member = await User.findByIdAndUpdate(
     id,
-    req.body,
+    updateData,
     { new: true, runValidators: true }
-  ).select("-password");
+  )
+    .select("-password")
+    .populate("membershipId", "name cost duration durationType")
+    .populate("trainerId", "name email");
 
   if (!member || member.role !== "member") {
     throw new ApiError(404, "Member not found");
@@ -93,6 +143,10 @@ exports.updateMember = asyncHandler(async (req, res) => {
     success: true,
     message: "Member updated successfully",
     data: member,
+    membershipExpiry: member.membershipExpiry,
+    membershipExpiryFormatted: member.membershipExpiry 
+      ? member.membershipExpiry.toISOString() 
+      : null,
   });
 });
 

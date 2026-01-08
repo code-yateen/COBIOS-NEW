@@ -1,7 +1,7 @@
 const Payment = require("../models/Payment");
 const User = require("../models/User");
 const Membership = require("../models/Membership");
-const { daysBetween } = require("../utils/helpers");
+const { daysBetween, calculateMembershipExpiry } = require("../utils/helpers");
 
 class PaymentService {
   async processPayment(paymentData) {
@@ -29,21 +29,28 @@ class PaymentService {
     });
 
     // Update member's membership and expiry
-    const expiryDate = new Date();
-    if (membership.durationType === "days") {
-      expiryDate.setDate(expiryDate.getDate() + membership.duration);
-    } else if (membership.durationType === "months") {
-      expiryDate.setMonth(expiryDate.getMonth() + membership.duration);
-    } else if (membership.durationType === "years") {
-      expiryDate.setFullYear(expiryDate.getFullYear() + membership.duration);
-    }
+    const expiryDate = calculateMembershipExpiry(
+      membership.duration,
+      membership.durationType,
+      new Date()
+    );
 
-    await User.findByIdAndUpdate(memberId, {
-      membershipId,
+    const updatedMember = await User.findByIdAndUpdate(
+      memberId,
+      {
+        membershipId,
+        membershipExpiry: expiryDate,
+      },
+      { new: true }
+    ).select("-password");
+
+    // Return payment with expiry date info
+    const paymentObj = payment.toObject();
+    return {
+      ...paymentObj,
       membershipExpiry: expiryDate,
-    });
-
-    return payment;
+      membershipExpiryFormatted: expiryDate.toISOString(),
+    };
   }
 
   async getPaymentStats() {

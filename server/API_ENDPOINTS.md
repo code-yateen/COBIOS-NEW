@@ -164,6 +164,32 @@ Authorization: Bearer <accessToken>
   "membershipId": "membership_id"
 }
 ```
+**Notes:**
+- If `membershipId` is provided, the `membershipExpiry` date is automatically calculated based on the membership plan's duration and durationType
+- The expiry date is calculated from the current date
+- Response includes `membershipExpiry` (Date) and `membershipExpiryFormatted` (ISO string)
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Member created successfully",
+  "data": {
+    "_id": "member_id",
+    "name": "Member Name",
+    "email": "member@example.com",
+    "membershipId": {
+      "_id": "membership_id",
+      "name": "Premium",
+      "duration": 3,
+      "durationType": "months"
+    },
+    "membershipExpiry": "2024-03-15T00:00:00.000Z",
+    ...
+  },
+  "membershipExpiry": "2024-03-15T00:00:00.000Z",
+  "membershipExpiryFormatted": "2024-03-15T00:00:00.000Z"
+}
+```
 
 ### PUT `/members/:id`
 **Description:** Update member  
@@ -172,7 +198,32 @@ Authorization: Bearer <accessToken>
 ```json
 {
   "name": "Updated Name",
-  "phone": "9876543210"
+  "phone": "9876543210",
+  "membershipId": "membership_id"
+}
+```
+**Notes:**
+- If `membershipId` is updated, the `membershipExpiry` date is automatically recalculated from the current date
+- Response includes `membershipExpiry` (Date) and `membershipExpiryFormatted` (ISO string)
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Member updated successfully",
+  "data": {
+    "_id": "member_id",
+    "name": "Updated Name",
+    "membershipId": {
+      "_id": "membership_id",
+      "name": "Premium",
+      "duration": 3,
+      "durationType": "months"
+    },
+    "membershipExpiry": "2024-03-15T00:00:00.000Z",
+    ...
+  },
+  "membershipExpiry": "2024-03-15T00:00:00.000Z",
+  "membershipExpiryFormatted": "2024-03-15T00:00:00.000Z"
 }
 ```
 
@@ -328,6 +379,27 @@ Authorization: Bearer <accessToken>
   "amount": 2999,
   "paymentMethod": "Credit Card",
   "status": "completed"
+}
+```
+**Notes:**
+- When payment is created, the member's `membershipId` and `membershipExpiry` are automatically updated
+- The expiry date is calculated from the current date based on the membership plan's duration and durationType
+- Response includes `membershipExpiry` and `membershipExpiryFormatted` fields
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Payment created successfully",
+  "data": {
+    "_id": "payment_id",
+    "memberId": "member_id",
+    "membershipId": "membership_id",
+    "amount": 2999,
+    "status": "completed",
+    "membershipExpiry": "2024-03-15T00:00:00.000Z",
+    "membershipExpiryFormatted": "2024-03-15T00:00:00.000Z",
+    ...
+  }
 }
 ```
 
@@ -821,4 +893,8 @@ Authorization: Bearer <accessToken>
    - AI-generated diet plans are kcal-based and include specific food items with quantities
    - Dietary preferences supported: Vegetarian or Non-Vegetarian only
    - AI returns strict JSON format only (no markdown, no explanations)
+8. **Membership Expiry:**
+   - When a membership plan is assigned to a member (via POST/PUT `/members` or POST `/payments`), the `membershipExpiry` date is automatically calculated
+   - Expiry date is calculated from the current date based on the membership's `duration` and `durationType` (days, months, years)
+   - The expiry date is included in all relevant responses as both Date object and ISO formatted string
 
