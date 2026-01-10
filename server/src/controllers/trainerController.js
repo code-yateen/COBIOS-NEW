@@ -31,8 +31,17 @@ exports.getTrainerById = asyncHandler(async (req, res) => {
   const userId = req.user.userId;
   const userRole = req.user.role;
 
-  // Check access: Admin or Self
-  if (userRole !== "admin" && userId !== id) {
+  // Check access: Admin, the trainer, or a member assigned to the trainer
+  let allowed = false;
+  if (userRole === "admin" || userId === id) {
+    allowed = true;
+  } else if (userRole === "member") {
+    const member = await User.findById(userId);
+    if (member && member.trainerId && member.trainerId.toString() === id.toString()) {
+      allowed = true;
+    }
+  }
+  if (!allowed) {
     throw new ApiError(403, "Access denied");
   }
 
@@ -51,10 +60,20 @@ exports.getTrainerById = asyncHandler(async (req, res) => {
 });
 
 exports.createTrainer = asyncHandler(async (req, res) => {
-  const trainer = await User.create({
+  const trainerData = {
     ...req.body,
     role: "trainer",
-  });
+  };
+
+  // Capture password before it's hashed
+  const plainPassword = trainerData.password;
+
+  const trainer = await User.create(trainerData);
+
+  // Send account credentials email
+  if (plainPassword && trainer.email) {
+    await emailService.sendTrainerAccountCredentials(trainer, plainPassword);
+  }
 
   res.status(201).json({
     success: true,

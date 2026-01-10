@@ -256,7 +256,11 @@ Authorization: Bearer <accessToken>
 
 ### GET `/trainers/:id`
 **Description:** Get trainer by ID  
-**Access:** Admin, Self
+**Access:** Admin, Self (the trainer), Member (if member is assigned to this trainer via trainerId)
+
+**Notes:**
+- Members can view their own assigned trainer's details using this endpoint (if their `trainerId` matches `:id`)
+- Admin and the trainer themself always have access.
 
 ### POST `/trainers`
 **Description:** Create new trainer  
@@ -612,8 +616,39 @@ Authorization: Bearer <accessToken>
 **Access:** Admin, Trainer
 
 ### GET `/diet-plans/member/:memberId`
-**Description:** Get member's diet plans  
+**Description:** Get all diet plans for a member (by member _id). Returns most recent plans first (default is all plans; you may filter in frontend as needed).  
 **Access:** Admin, Trainer, Self
+**Example request:**
+```
+GET /diet-plans/member/662b908c779d21a2cffd201b
+Authorization: Bearer <token>
+```
+**Example response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "_id": "662b93e2779d21a2cffd2025",
+      "memberId": "662b908c779d21a2cffd201b",
+      "trainerId": { "_id": "662b8ead779d21a2cffd2005", "name": "Trainer Name", "email": "trainer@email.com"},
+      "planName": "Weight Loss Diet",
+      "goal": "Weight Loss",
+      "dailyCalories": 2000,
+      "macros": { "protein": "30%", "carbs": "45%", "fats": "25%" },
+      "meals": [ ... ],
+      "createdAt": "2024-05-01T12:00:00.000Z",
+      ...
+    }
+  ]
+}
+```
+**Notes:**
+- Returns an array of all (not just latest) plans for the member
+- Use the latest one by picking the plan with the newest `createdAt` field if you want the current plan
+- Requires valid JWT (admin, trainer, or the member themself)
+- Use `/diet-plans/:id` if you want to get a diet plan by its specific plan ID
+
 
 ---
 
