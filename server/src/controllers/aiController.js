@@ -186,20 +186,35 @@ exports.generateDietPlan = asyncHandler(async (req, res) => {
 
   // If meals are missing, create basic structure (this should rarely happen with strict AI)
   if (validatedPlan.meals.length === 0 || missingMeals.length > 0) {
-    const defaultMeals = allowedMealTypes.map(mealType => ({
-      meal: mealType,
-      time: mealType === "Breakfast" ? "8:00 AM" : 
-            mealType === "Lunch" ? "1:00 PM" : 
-            mealType === "Dinner" ? "7:00 PM" :
-            mealType === "Pre-workout" ? "5:00 PM" : "7:30 PM",
-      items: [{
-        food: "Sample Food",
-        quantity: "1 serving",
-        calories: Math.round(validatedPlan.dailyCalories / 5),
-        protein: "10g",
-      }],
-      totalCalories: Math.round(validatedPlan.dailyCalories / 5),
-    }));
+    const getDefaultFood = (mealType) => {
+      switch(mealType) {
+        case "Breakfast":
+          return { food: "Roti", quantity: "2 pieces", calories: 150, protein: "6g" };
+        case "Lunch":
+          return { food: "Dal", quantity: "1 bowl", calories: 200, protein: "12g" };
+        case "Dinner":
+          return { food: "Rice", quantity: "1 bowl", calories: 200, protein: "4g" };
+        case "Pre-workout":
+          return { food: "Banana", quantity: "1 medium", calories: 100, protein: "1g" };
+        case "Post-workout":
+          return { food: "Milk", quantity: "1 glass", calories: 150, protein: "8g" };
+        default:
+          return { food: "Roti", quantity: "1 piece", calories: 75, protein: "3g" };
+      }
+    };
+
+    const defaultMeals = allowedMealTypes.map(mealType => {
+      const defaultFood = getDefaultFood(mealType);
+      return {
+        meal: mealType,
+        time: mealType === "Breakfast" ? "8:00 AM" : 
+              mealType === "Lunch" ? "1:00 PM" : 
+              mealType === "Dinner" ? "7:00 PM" :
+              mealType === "Pre-workout" ? "5:00 PM" : "7:30 PM",
+        items: [defaultFood],
+        totalCalories: defaultFood.calories,
+      };
+    });
 
     // Merge existing meals with missing ones
     validatedPlan.meals = allowedMealTypes.map(mealType => {

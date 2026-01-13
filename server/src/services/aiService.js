@@ -80,7 +80,7 @@ class AIService {
     } = userDetails;
 
     const prompt = `
-Create a detailed workout plan for a gym member:
+Create a detailed workout plan for an Indian gym member:
 
 Age: ${age}
 Height: ${height} cm
@@ -90,6 +90,14 @@ Goal: ${goal}
 Medical Conditions: ${medicalConditions || "None"}
 Workout Days Per Week: ${workoutDaysPerWeek}
 Preferred Workout Time: ${preferredWorkoutTime}
+
+IMPORTANT REQUIREMENTS FOR INDIAN CONTEXT:
+1. Focus on exercises that are practical and accessible in Indian gyms
+2. Use common gym equipment available in most Indian fitness centers
+3. Consider Indian body types and fitness culture
+4. Keep the plan simple, effective, and sustainable
+5. Avoid recommending expensive equipment or supplements
+6. Include bodyweight exercises where appropriate
 
 Return JSON in this exact format:
 {
@@ -114,7 +122,7 @@ Return JSON in this exact format:
 `;
 
     return this.callDeepSeek(
-      "You are an expert fitness trainer and exercise physiologist.",
+      "You are an expert fitness trainer and exercise physiologist specializing in Indian people. You create practical, cost-effective workout plans suitable for Indian gym members using common equipment available in Indian fitness centers.",
       prompt
     );
   }
@@ -144,7 +152,7 @@ Return JSON in this exact format:
       : (dietaryRestrictions && dietaryRestrictions.toLowerCase().includes("veg") && !dietaryRestrictions.toLowerCase().includes("non") ? "Vegetarian" : "Non-Vegetarian");
 
     const prompt = `
-Create a detailed diet plan based on the following requirements:
+Create a simple, cost-effective diet plan for an Indian person based on the following requirements:
 
 Age: ${age}
 Height: ${height} cm
@@ -155,13 +163,27 @@ Dietary Preference: ${dietType}
 Medical Conditions: ${medicalConditions || "None"}
 Target Daily Calories: ${targetCalories} kcal
 
+CRITICAL REQUIREMENTS FOR INDIAN DIET PLAN:
+1. Use ONLY common, affordable Indian food items available in local markets
+2. Focus on traditional Indian foods: dal, rice, roti, vegetables, fruits, curd, soya, etc.
+3. For ${dietType === "Vegetarian" ? "vegetarian" : "non-vegetarian"}: Use paneer, dal, eggs, chicken (if non-veg), etc. - avoid expensive items
+4. DO NOT recommend any expensive supplements, imported foods
+5. Keep meals simple, practical, and easy to prepare at home
+6. Use locally available vegetables and fruits
+7. Pre-workout meal: MUST specify actual food items like banana, dates, milk, roti with peanut butter, etc. - NO generic names like "Sample Food" or placeholder names
+8. Post-workout meal: MUST specify actual food items like banana, milk, dates, roti with paneer, dal, etc. - NO generic names like "Sample Food" or placeholder names
+9. NEVER use placeholder names like "Sample Food", "Food Item", "Meal", etc. - ALWAYS use real, specific Indian food names
+10. All food items MUST be ${dietType.toLowerCase()} appropriate
+11. Total calories across all meals MUST equal approximately ${targetCalories} kcal
+
 IMPORTANT REQUIREMENTS:
 1. You MUST create meals ONLY for these meal types: Breakfast, Lunch, Dinner, Pre-workout, Post-workout
 2. Each meal MUST include specific food items with exact quantities
-3. All food items MUST be ${dietType.toLowerCase()} appropriate
-4. Total calories across all meals MUST equal approximately ${targetCalories} kcal
-5. Each food item MUST have: food name, quantity, calories, and protein content
-6. Each meal MUST have a totalCalories field that sums all items in that meal
+3. Each food item MUST have: food name, quantity, calories, and protein content
+4. Each meal MUST have a totalCalories field that sums all items in that meal
+5. Use simple, everyday Indian food names (e.g., "Dal", "Roti", "Rice", "Sabzi", "Paneer", "Chicken Curry", "Banana", "Dates", "Milk", etc.)
+6. For Pre-workout: Use light, energy-boosting foods like banana, dates, milk, roti with ghee, etc.
+7. For Post-workout: Use protein-rich foods like milk, banana, roti with paneer, dal, eggs (if non-veg), etc.
 
 Return JSON in this EXACT format (no other fields, no variations):
 {
@@ -243,10 +265,15 @@ Return JSON in this EXACT format (no other fields, no variations):
 }
 
 CRITICAL: Return ONLY valid JSON. No markdown, no explanations, no comments. The meal field values MUST be exactly: "Breakfast", "Lunch", "Dinner", "Pre-workout", or "Post-workout".
+
+REMEMBER: 
+- Keep it simple, affordable, and practical for Indian households. No expensive supplements or imported foods.
+- NEVER use placeholder names like "Sample Food", "Food Item", or generic names - ALWAYS use real Indian food names
+- Pre-workout and Post-workout meals MUST have actual food items specified.
 `;
 
     return this.callDeepSeek(
-      "You are an expert nutritionist and dietitian. You create precise, kcal-based diet plans with specific food items based on dietary preferences (vegetarian or non-vegetarian only).",
+      "You are an expert Indian nutritionist and dietitian. You create simple, cost-effective, kcal-based diet plans using common Indian food items available in local markets. You focus on traditional Indian foods and avoid expensive supplements or imported items.",
       prompt
     );
   }

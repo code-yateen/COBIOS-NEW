@@ -1,0 +1,345 @@
+ [{
+    "success": true,
+    "message": "Workout plan generated successfully",
+    "data": {
+        "_id": "69664071addaf8d9e2172ced",
+        "memberId": {
+            "_id": "695fae5cb2f333492b6f0d74",
+            "email": "ankittest@example.com",
+            "name": "Ankit Gupta"
+        },
+        "trainerId": {
+            "_id": "695fae5cb2f333492b6f0d74",
+            "email": "ankittest@example.com",
+            "name": "Ankit Gupta"
+        },
+        "planName": "Indian Muscle Builder Plan",
+        "goal": "Build Muscle",
+        "duration": "8-12 weeks",
+        "aiGenerated": true,
+        "schedule": [
+            {
+                "day": "Monday",
+                "focus": "Chest & Triceps",
+                "exercises": [
+                    {
+                        "name": "Barbell Bench Press",
+                        "sets": 4,
+                        "reps": "8-10",
+                        "rest": "90s"
+                    },
+                    {
+                        "name": "Incline Dumbbell Press",
+                        "sets": 3,
+                        "reps": "10-12",
+                        "rest": "75s"
+                    },
+                    {
+                        "name": "Push-ups",
+                        "sets": 3,
+                        "reps": "12-15",
+                        "rest": "60s"
+                    },
+                    {
+                        "name": "Tricep Dips",
+                        "sets": 3,
+                        "reps": "10-12",
+                        "rest": "60s"
+                    }
+                ]
+            },
+            {
+                "day": "Tuesday",
+                "focus": "Back & Biceps",
+                "exercises": [
+                    {
+                        "name": "Pull-ups",
+                        "sets": 4,
+                        "reps": "8-10",
+                        "rest": "90s"
+                    },
+                    {
+                        "name": "Barbell Rows",
+                        "sets": 3,
+                        "reps": "10-12",
+                        "rest": "75s"
+                    },
+                    {
+                        "name": "Lat Pulldowns",
+                        "sets": 3,
+                        "reps": "12-15",
+                        "rest": "60s"
+                    },
+                    {
+                        "name": "Dumbbell Bicep Curls",
+                        "sets": 3,
+                        "reps": "10-12",
+                        "rest": "60s"
+                    }
+                ]
+            },
+            {
+                "day": "Wednesday",
+                "focus": "Rest",
+                "exercises": []
+            },
+            {
+                "day": "Thursday",
+                "focus": "Legs",
+                "exercises": [
+                    {
+                        "name": "Barbell Squats",
+                        "sets": 4,
+                        "reps": "8-10",
+                        "rest": "120s"
+                    },
+                    {
+                        "name": "Leg Press",
+                        "sets": 3,
+                        "reps": "12-15",
+                        "rest": "90s"
+                    },
+                    {
+                        "name": "Lunges",
+                        "sets": 3,
+                        "reps": "10-12 each leg",
+                        "rest": "75s"
+                    },
+                    {
+                        "name": "Calf Raises",
+                        "sets": 4,
+                        "reps": "15-20",
+                        "rest": "60s"
+                    }
+                ]
+            },
+            {
+                "day": "Friday",
+                "focus": "Shoulders & Abs",
+                "exercises": [
+                    {
+                        "name": "Overhead Press",
+                        "sets": 4,
+                        "reps": "8-10",
+                        "rest": "90s"
+                    },
+                    {
+                        "name": "Dumbbell Lateral Raises",
+                        "sets": 3,
+                        "reps": "12-15",
+                        "rest": "60s"
+                    },
+                    {
+                        "name": "Front Plate Raises",
+                        "sets": 3,
+                        "reps": "12-15",
+                        "rest": "60s"
+                    },
+                    {
+                        "name": "Plank",
+                        "sets": 3,
+                        "reps": "30-45 seconds",
+                        "rest": "45s"
+                    }
+                ]
+            },
+            {
+                "day": "Saturday",
+                "focus": "Full Body & Conditioning",
+                "exercises": [
+                    {
+                        "name": "Deadlifts",
+                        "sets": 4,
+                        "reps": "6-8",
+                        "rest": "120s"
+                    },
+                    {
+                        "name": "Pull-ups",
+                        "sets": 3,
+                        "reps": "8-10",
+                        "rest": "90s"
+                    },
+                    {
+                        "name": "Push-ups",
+                        "sets": 3,
+                        "reps": "15-20",
+                        "rest": "60s"
+                    },
+                    {
+                        "name": "Farmer's Walk",
+                        "sets": 3,
+                        "reps": "30 meters",
+                        "rest": "90s"
+                    }
+                ]
+            },
+            {
+                "day": "Sunday",
+                "focus": "Rest",
+                "exercises": []
+            }
+        ],
+        "isActive": true,
+        "createdAt": "2026-01-13T12:54:09.161Z",
+        "updatedAt": "2026-01-13T12:54:09.161Z",
+        "__v": 0
+    }
+}
+,
+{
+    "success": true,
+    "message": "Diet plan generated successfully",
+    "data": {
+        "macros": {
+            "protein": "20%",
+            "carbs": "60%",
+            "fats": "20%"
+        },
+        "_id": "69664002addaf8d9e2172ce7",
+        "memberId": {
+            "_id": "695fae5cb2f333492b6f0d74",
+            "email": "ankittest@example.com",
+            "name": "Ankit Gupta"
+        },
+        "trainerId": {
+            "_id": "695fae5cb2f333492b6f0d74",
+            "email": "ankittest@example.com",
+            "name": "Ankit Gupta"
+        },
+        "planName": "Affordable Indian Weight Gain Diet",
+        "goal": "Weight gain",
+        "dailyCalories": 2316,
+        "aiGenerated": true,
+        "meals": [
+            {
+                "meal": "Breakfast",
+                "time": "8:00 AM",
+                "items": [
+                    {
+                        "food": "Poha",
+                        "quantity": "1.5 cups",
+                        "calories": 300,
+                        "protein": "8g"
+                    },
+                    {
+                        "food": "Banana",
+                        "quantity": "1 medium",
+                        "calories": 105,
+                        "protein": "1.3g"
+                    },
+                    {
+                        "food": "Milk",
+                        "quantity": "200ml",
+                        "calories": 124,
+                        "protein": "6g"
+                    }
+                ],
+                "totalCalories": 529
+            },
+            {
+                "meal": "Lunch",
+                "time": "1:00 PM",
+                "items": [
+                    {
+                        "food": "Roti",
+                        "quantity": "2 pieces",
+                        "calories": 140,
+                        "protein": "3g"
+                    },
+                    {
+                        "food": "Dal",
+                        "quantity": "1 cup",
+                        "calories": 150,
+                        "protein": "8g"
+                    },
+                    {
+                        "food": "Rice",
+                        "quantity": "1 cup",
+                        "calories": 200,
+                        "protein": "4g"
+                    },
+                    {
+                        "food": "Paneer Sabzi",
+                        "quantity": "100g",
+                        "calories": 265,
+                        "protein": "20g"
+                    },
+                    {
+                        "food": "Curd",
+                        "quantity": "100g",
+                        "calories": 60,
+                        "protein": "3g"
+                    }
+                ],
+                "totalCalories": 815
+            },
+            {
+                "meal": "Dinner",
+                "time": "8:00 PM",
+                "items": [
+                    {
+                        "food": "Roti",
+                        "quantity": "2 pieces",
+                        "calories": 140,
+                        "protein": "3g"
+                    },
+                    {
+                        "food": "Rice",
+                        "quantity": "1 cup",
+                        "calories": 200,
+                        "protein": "4g"
+                    },
+                    {
+                        "food": "Mixed Vegetable Sabzi",
+                        "quantity": "100g",
+                        "calories": 50,
+                        "protein": "2g"
+                    },
+                    {
+                        "food": "Soya Chunk Curry",
+                        "quantity": "70g",
+                        "calories": 210,
+                        "protein": "21g"
+                    },
+                    {
+                        "food": "Curd",
+                        "quantity": "100g",
+                        "calories": 60,
+                        "protein": "3g"
+                    }
+                ],
+                "totalCalories": 660
+            },
+            {
+                "meal": "Pre-workout",
+                "time": "5:00 PM",
+                "items": [
+                    {
+                        "food": "Sample Food",
+                        "quantity": "1 serving",
+                        "calories": 463,
+                        "protein": "10g"
+                    }
+                ],
+                "totalCalories": 463
+            },
+            {
+                "meal": "Post-workout",
+                "time": "7:30 PM",
+                "items": [
+                    {
+                        "food": "Sample Food",
+                        "quantity": "1 serving",
+                        "calories": 463,
+                        "protein": "10g"
+                    }
+                ],
+                "totalCalories": 463
+            }
+        ],
+        "isActive": true,
+        "createdAt": "2026-01-13T12:52:18.655Z",
+        "updatedAt": "2026-01-13T12:52:18.655Z",
+        "__v": 0
+    }
+}]
