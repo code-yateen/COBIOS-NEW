@@ -6,6 +6,7 @@ const Progress = require("../models/Progress");
 const Attendance = require("../models/Attendance");
 const ApiError = require("../utils/ApiError");
 const asyncHandler = require("../utils/asyncHandler");
+const emailService = require("../services/emailService");
 const { calculateMembershipExpiry } = require("../utils/helpers");
 
 exports.getAllMembers = asyncHandler(async (req, res) => {
@@ -64,6 +65,9 @@ exports.createMember = asyncHandler(async (req, res) => {
     role: "member",
   };
 
+  // Capture password before it's hashed
+  const plainPassword = memberData.password;
+
   // If membershipId is provided, calculate expiry date
   if (memberData.membershipId) {
     const membership = await Membership.findById(memberData.membershipId);
@@ -101,6 +105,11 @@ exports.createMember = asyncHandler(async (req, res) => {
     }
   }
 
+  // Send account credentials email to the member
+  if (plainPassword && member.email) {
+    await emailService.sendMemberAccountCredentials(member, plainPassword);
+  }
+
   // Populate membership details for response
   const populatedMember = await User.findById(member._id)
     .select("-password")
@@ -109,7 +118,7 @@ exports.createMember = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    message: "Member created successfully",
+    message: "Member created successfully. Account credentials have been sent to their email.",
     data: populatedMember,
     membershipExpiry: member.membershipExpiry,
     membershipExpiryFormatted: member.membershipExpiry 

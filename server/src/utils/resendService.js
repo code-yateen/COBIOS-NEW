@@ -1,94 +1,47 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const env = require("../config/env");
-const resendService = require("../utils/resendService");
 
-class EmailService {
+class ResendService {
   constructor() {
-    this.transporter = null;
-    this.useResend = !!env.RESEND_API_KEY; // Use Resend if API key is available
-    
-    // Initialize Nodemailer as fallback
-    if (env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASS) {
-      this.transporter = nodemailer.createTransport({
-        host: env.SMTP_HOST,
-        port: parseInt(env.SMTP_PORT) || 587,
-        secure: false,
-        auth: {
-          user: env.SMTP_USER,
-          pass: env.SMTP_PASS,
-        },
-      });
+    this.resend = null;
+    if (env.RESEND_API_KEY) {
+      this.resend = new Resend(env.RESEND_API_KEY);
+    } else {
+      console.warn("Resend API key not configured. Resend email service will not work.");
     }
   }
 
   async sendEmail(to, subject, html, text = null) {
-    // Try Resend first if configured
-    if (this.useResend) {
-      const result = await resendService.sendEmail(to, subject, html, text);
-      if (result) return true;
-      // Fallback to SMTP if Resend fails
-      console.warn("Resend failed, falling back to SMTP");
-    }
-
-    // Fallback to SMTP/Nodemailer
-    if (!this.transporter) {
-      console.warn("Email service not configured. Email not sent.");
+    if (!this.resend) {
+      console.warn("Resend service not configured. Email not sent.");
       return false;
     }
 
     try {
-      const info = await this.transporter.sendMail({
-        from: `"Cobios Gym" <${env.SMTP_USER}>`,
-        to,
-        subject,
-        text: text || html,
-        html,
+      const fromEmail = env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+      
+      const { data, error } = await this.resend.emails.send({
+        from: `Cobios Gym <${fromEmail}>`,
+        to: [to],
+        subject: subject,
+        html: html,
+        text: text || html.replace(/<[^>]*>/g, ""), // Strip HTML tags for text version
       });
 
-      console.log("Email sent via SMTP:", info.messageId);
+      if (error) {
+        console.error("Resend error:", error);
+        return false;
+      }
+
+      console.log("Email sent via Resend:", data?.id);
       return true;
     } catch (error) {
-      console.error("Error sending email:", error);
+      console.error("Error sending email via Resend:", error);
       return false;
     }
   }
 
-  async sendWelcomeEmail(user) {
-    const html = `
-      <h1>Welcome to Cobios Gym!</h1>
-      <p>Hi ${user.name},</p>
-      <p>Your account has been successfully created.</p>
-      <p>We're excited to have you on board!</p>
-    `;
-
-    return this.sendEmail(user.email, "Welcome to Cobios Gym", html);
-  }
-
-  async sendPasswordResetEmail(user, resetToken) {
-    const resetUrl = `${env.CLIENT_URL}/reset-password/${resetToken}`;
-    const html = `
-      <h1>Password Reset Request</h1>
-      <p>Hi ${user.name},</p>
-      <p>You requested a password reset. Click the link below to reset your password:</p>
-      <a href="${resetUrl}">${resetUrl}</a>
-      <p>This link will expire in 1 hour.</p>
-      <p>If you didn't request this, please ignore this email.</p>
-    `;
-
-    return this.sendEmail(
-      user.email,
-      "Password Reset Request",
-      html
-    );
-  }
-
   async sendMemberAccountCredentials(user, password) {
-    // Use Resend service if available, otherwise use SMTP
-    if (this.useResend) {
-      return await resendService.sendMemberAccountCredentials(user, password);
-    }
-
-    // Fallback to SMTP implementation
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #333;">Welcome to Cobios Gym!</h1>
@@ -129,12 +82,6 @@ This is an automated email. Please do not reply to this message.
   }
 
   async sendTrainerAccountCredentials(user, password) {
-    // Use Resend service if available, otherwise use SMTP
-    if (this.useResend) {
-      return await resendService.sendTrainerAccountCredentials(user, password);
-    }
-
-    // Fallback to SMTP implementation
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #333;">Welcome to Cobios Gym Trainer Portal!</h1>
@@ -175,5 +122,5 @@ This is an automated email. Please do not reply to this message.
   }
 }
 
-module.exports = new EmailService();
+module.exports = new ResendService();
 
