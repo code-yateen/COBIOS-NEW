@@ -25,8 +25,8 @@ A comprehensive gym management system backend built with the MERN stack (MongoDB
    Edit `.env` file with your configurations:
    - MongoDB URI
    - JWT secrets (must be at least 32 characters)
-   - Email configuration (optional)
-   - OpenAI API key (optional, for AI features)
+   - Email configuration: Resend API key (recommended) or SMTP settings (fallback)
+   - OpenRouter API key (required for AI features)
 
 3. **Start the server**
    ```bash
@@ -76,18 +76,20 @@ server/
 - `DELETE /api/users/:id` - Delete user
 
 ### Members
-- `GET /api/members` - Get all members
+- `GET /api/members` - Get all members (with pagination)
 - `GET /api/members/:id` - Get member by ID
-- `POST /api/members` - Create new member (Admin)
+- `POST /api/members` - Create new member (Admin) - Sends account credentials via email
 - `PUT /api/members/:id` - Update member
 - `GET /api/members/:id/progress` - Get member progress
 - `GET /api/members/:id/plans` - Get member plans
+- `GET /api/members/:id/attendance` - Get member attendance
 
 ### Trainers
-- `GET /api/trainers` - Get all trainers
-- `GET /api/trainers/:id` - Get trainer by ID
-- `POST /api/trainers` - Create trainer (Admin)
-- `GET /api/trainers/:id/members` - Get trainer's members
+- `GET /api/trainers` - Get all trainers (with pagination)
+- `GET /api/trainers/:id` - Get trainer by ID (Admin, Self, or Member if assigned)
+- `POST /api/trainers` - Create trainer (Admin) - Sends account credentials via email
+- `PUT /api/trainers/:id` - Update trainer
+- `GET /api/trainers/:id/members` - Get trainer's assigned members
 
 ### Memberships
 - `GET /api/memberships` - Get all memberships (Public)
@@ -157,8 +159,10 @@ See `.env.example` for all required environment variables.
 - `JWT_REFRESH_SECRET` - Secret for refresh tokens (min 32 chars)
 
 **Optional:**
-- `OPENAI_API_KEY` - For AI plan generation
-- `SMTP_*` - For email notifications
+- `OPENROUTER_API_KEY` - For AI plan generation (required for AI features)
+- `RESEND_API_KEY` - For email notifications via Resend (recommended)
+- `RESEND_FROM_EMAIL` - Verified email address for Resend (e.g., noreply@yourdomain.com)
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` - For email notifications via SMTP (fallback if Resend not configured)
 
 ## Development
 

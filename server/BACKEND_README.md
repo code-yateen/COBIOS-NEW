@@ -171,15 +171,19 @@ BCRYPT_SALT_ROUNDS=12
 # Frontend URL (for CORS)
 CLIENT_URL=http://localhost:5173
 
-# Email Configuration (Nodemailer)
+# Email Configuration
+# Option 1: Resend (Recommended - Primary)
+RESEND_API_KEY=re_your_resend_api_key_here
+RESEND_FROM_EMAIL=noreply@yourdomain.com
+
+# Option 2: SMTP/Nodemailer (Fallback)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=your_email@gmail.com
 SMTP_PASS=your_app_password
 
-# OpenAI Configuration (for AI Plan Generation)
-OPENAI_API_KEY=sk-your-openai-api-key
-OPENAI_MODEL=gpt-4
+# AI Configuration (for AI Plan Generation)
+OPENROUTER_API_KEY=sk-or-v1-your-openrouter-api-key-here
 
 # File Upload
 MAX_FILE_SIZE=5242880

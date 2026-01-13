@@ -167,6 +167,8 @@ Authorization: Bearer <accessToken>
 **Notes:**
 - If `membershipId` is provided, the `membershipExpiry` date is automatically calculated based on the membership plan's duration and durationType
 - The expiry date is calculated from the current date
+- If `trainerId` is provided, the member is automatically added to the trainer's `assignedMembers` array
+- Account credentials (email and password) are automatically sent to the member's email address
 - Response includes `membershipExpiry` (Date) and `membershipExpiryFormatted` (ISO string)
 **Response:**
 ```json
@@ -260,7 +262,8 @@ Authorization: Bearer <accessToken>
 
 **Notes:**
 - Members can view their own assigned trainer's details using this endpoint (if their `trainerId` matches `:id`)
-- Admin and the trainer themself always have access.
+- Admin and the trainer themself always have access
+- Returns trainer details including name, email, specialization, experience, certifications, and assigned members
 
 ### POST `/trainers`
 **Description:** Create new trainer  
@@ -932,4 +935,8 @@ Authorization: Bearer <token>
    - When a membership plan is assigned to a member (via POST/PUT `/members` or POST `/payments`), the `membershipExpiry` date is automatically calculated
    - Expiry date is calculated from the current date based on the membership's `duration` and `durationType` (days, months, years)
    - The expiry date is included in all relevant responses as both Date object and ISO formatted string
+9. **Email Notifications:**
+   - When a new member or trainer is created by admin, account credentials (email and password) are automatically sent to their registered email
+   - Email service uses Resend API (primary) with SMTP/Nodemailer as fallback
+   - Configure `RESEND_API_KEY` and `RESEND_FROM_EMAIL` for Resend, or `SMTP_*` variables for SMTP
 
