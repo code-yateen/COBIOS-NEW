@@ -63,6 +63,7 @@ exports.createMember = asyncHandler(async (req, res) => {
   const memberData = {
     ...req.body,
     role: "member",
+    isActive: true, // Ensure new members are active by default
   };
 
   // Capture password before it's hashed

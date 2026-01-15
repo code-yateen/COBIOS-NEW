@@ -2,9 +2,11 @@ const { body } = require("express-validator");
 
 exports.loginValidator = [
   body("email")
+    .trim()
+    .toLowerCase()
     .isEmail()
-    .withMessage("Please provide a valid email")
-    .normalizeEmail(),
+    .withMessage("Please provide a valid email"),
+    // .normalizeEmail(), // ❌ REMOVED - This was stripping dots from Gmail addresses
   body("password")
     .notEmpty()
     .withMessage("Password is required")
@@ -14,9 +16,11 @@ exports.loginValidator = [
 
 exports.registerValidator = [
   body("email")
+    .trim()
+    .toLowerCase()
     .isEmail()
-    .withMessage("Please provide a valid email")
-    .normalizeEmail(),
+    .withMessage("Please provide a valid email"),
+    // .normalizeEmail(), // ❌ REMOVED
   body("password")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters"),
@@ -41,9 +45,11 @@ exports.refreshTokenValidator = [
 
 exports.forgotPasswordValidator = [
   body("email")
+    .trim()
+    .toLowerCase()
     .isEmail()
-    .withMessage("Please provide a valid email")
-    .normalizeEmail(),
+    .withMessage("Please provide a valid email"),
+    // .normalizeEmail(), // ❌ REMOVED
 ];
 
 exports.resetPasswordValidator = [
@@ -52,4 +58,3 @@ exports.resetPasswordValidator = [
     .withMessage("Password must be at least 6 characters"),
   body("token").notEmpty().withMessage("Reset token is required"),
 ];
-

@@ -63,6 +63,7 @@ exports.createTrainer = asyncHandler(async (req, res) => {
   const trainerData = {
     ...req.body,
     role: "trainer",
+    isActive: req.body.isActive !== undefined ? req.body.isActive : true, // Ensure active by default
   };
 
   // Capture password before it's hashed
