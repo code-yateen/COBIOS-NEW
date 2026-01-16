@@ -146,6 +146,11 @@ exports.updateMember = asyncHandler(async (req, res) => {
 
   const updateData = { ...req.body };
 
+  // Handle password update - ensure it's trimmed
+  if (updateData.password) {
+    updateData.password = String(updateData.password).trim();
+  }
+
   // If membershipId is being updated, calculate new expiry date
   if (updateData.membershipId) {
     const membership = await Membership.findById(updateData.membershipId);
@@ -190,14 +195,39 @@ exports.updateMember = asyncHandler(async (req, res) => {
     }
   }
 
-  const member = await User.findByIdAndUpdate(
-    id,
-    updateData,
-    { new: true, runValidators: true }
-  )
-    .select("-password")
-    .populate("membershipId", "name cost duration durationType")
-    .populate("trainerId", "name email");
+  // If password is being updated, use findById + save to trigger pre-save hook
+  // Otherwise use findByIdAndUpdate for better performance
+  let member;
+  if (updateData.password) {
+    // Use findById + save to ensure password is hashed via pre-save hook
+    member = await User.findById(id);
+    if (!member || member.role !== "member") {
+      throw new ApiError(404, "Member not found");
+    }
+    
+    // Update all fields
+    Object.keys(updateData).forEach((key) => {
+      member[key] = updateData[key];
+    });
+    
+    await member.save();
+    
+    // Populate after save
+    member = await User.findById(member._id)
+      .select("-password")
+      .populate("membershipId", "name cost duration durationType")
+      .populate("trainerId", "name email");
+  } else {
+    // No password update, use findByIdAndUpdate
+    member = await User.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    )
+      .select("-password")
+      .populate("membershipId", "name cost duration durationType")
+      .populate("trainerId", "name email");
+  }
 
   if (!member || member.role !== "member") {
     throw new ApiError(404, "Member not found");

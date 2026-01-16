@@ -93,11 +93,40 @@ exports.updateTrainer = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Access denied");
   }
 
-  const trainer = await User.findByIdAndUpdate(
-    id,
-    req.body,
-    { new: true, runValidators: true }
-  ).select("-password");
+  const updateData = { ...req.body };
+
+  // Handle password update - ensure it's trimmed
+  if (updateData.password) {
+    updateData.password = String(updateData.password).trim();
+  }
+
+  // If password is being updated, use findById + save to trigger pre-save hook
+  // Otherwise use findByIdAndUpdate for better performance
+  let trainer;
+  if (updateData.password) {
+    // Use findById + save to ensure password is hashed via pre-save hook
+    trainer = await User.findById(id);
+    if (!trainer || trainer.role !== "trainer") {
+      throw new ApiError(404, "Trainer not found");
+    }
+    
+    // Update all fields
+    Object.keys(updateData).forEach((key) => {
+      trainer[key] = updateData[key];
+    });
+    
+    await trainer.save();
+    
+    // Get updated trainer without password
+    trainer = await User.findById(trainer._id).select("-password");
+  } else {
+    // No password update, use findByIdAndUpdate
+    trainer = await User.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    ).select("-password");
+  }
 
   if (!trainer || trainer.role !== "trainer") {
     throw new ApiError(404, "Trainer not found");

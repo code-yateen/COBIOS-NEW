@@ -53,11 +53,40 @@ exports.createUser = asyncHandler(async (req, res) => {
 });
 
 exports.updateUser = asyncHandler(async (req, res) => {
-  const user = await User.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true, runValidators: true }
-  ).select("-password");
+  const updateData = { ...req.body };
+
+  // Handle password update - ensure it's trimmed
+  if (updateData.password) {
+    updateData.password = String(updateData.password).trim();
+  }
+
+  // If password is being updated, use findById + save to trigger pre-save hook
+  // Otherwise use findByIdAndUpdate for better performance
+  let user;
+  if (updateData.password) {
+    // Use findById + save to ensure password is hashed via pre-save hook
+    user = await User.findById(req.params.id);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    
+    // Update all fields
+    Object.keys(updateData).forEach((key) => {
+      user[key] = updateData[key];
+    });
+    
+    await user.save();
+    
+    // Get updated user without password
+    user = await User.findById(user._id).select("-password");
+  } else {
+    // No password update, use findByIdAndUpdate
+    user = await User.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    ).select("-password");
+  }
 
   if (!user) {
     throw new ApiError(404, "User not found");
