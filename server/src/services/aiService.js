@@ -98,8 +98,6 @@ IMPORTANT REQUIREMENTS FOR INDIAN CONTEXT:
 4. Keep the plan simple, effective, and sustainable
 5. Avoid recommending expensive equipment or supplements
 6. Include bodyweight exercises where appropriate
-7. the planName should be from these only : "COBIOS TrainCore", "COBIOS FitIQ", "COBIOS MotionAI", "COBIOS StrengthAI"
-
 
 Return JSON in this exact format:
 {
@@ -177,8 +175,6 @@ CRITICAL REQUIREMENTS FOR INDIAN DIET PLAN:
 9. NEVER use placeholder names like "Sample Food", "Food Item", "Meal", etc. - ALWAYS use real, specific Indian food names
 10. All food items MUST be ${dietType.toLowerCase()} appropriate
 11. Total calories across all meals MUST equal approximately ${targetCalories} kcal
-12. the planName should be from these only : "COBIOS NutriCore", "COBIOS DietIQ", "COBIOS NutriSense", "COBIOS MacroAI"
-
 
 IMPORTANT REQUIREMENTS:
 1. You MUST create meals ONLY for these meal types: Breakfast, Lunch, Dinner, Pre-workout, Post-workout
